@@ -6,6 +6,10 @@ import os
 from PIL import Image
 
 
+if not st.user.is_logged_in:
+    st.error("Please log in to access the App")
+    st.stop()
+
 ENDPOINT_URL = 'https://askai.aiclub.world/27a37a06-93bd-4ec5-a56c-963adc53c0e7'
 
 #####functions#########

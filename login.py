@@ -2,7 +2,7 @@ import streamlit as st
 import authlib
 
 
-IMAGE_ADDRESS = "https://www.theglobeandmail.com/resizer/v2/ZEC33ARWYNF7JKHKH6NN2PLRCQ.jpg?auth=b96fceb4acb641eb7765f3f1dff182dfa52eba742065b9da99b560e1ea32da21&width=1200&height=800&quality=80&smart=true"
+IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"
 
 
 if not st.user.is_logged_in:

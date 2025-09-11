@@ -24,7 +24,7 @@ def get_prediction(image_data, url):
 #Building the website
 
 #title of the web page
-st.title("Butterfly Classifer")
+st.title("Butterfly Classifier")
 
 #setting the main picture
 st.image(

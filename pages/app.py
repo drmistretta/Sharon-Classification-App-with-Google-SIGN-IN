@@ -10,7 +10,7 @@ if not st.user.is_logged_in:
     st.error("Please log in to access the App")
     st.stop()
 
-ENDPOINT_URL = 'https://askai.aiclub.world/27a37a06-93bd-4ec5-a56c-963adc53c0e7'
+ENDPOINT_URL = 'https://askai.aiclub.world/83845c7c-6fc6-42c0-a3d4-b1918a688783'
 
 #####functions#########
 def get_prediction(image_data, url):

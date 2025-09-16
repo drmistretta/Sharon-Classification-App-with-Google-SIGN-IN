@@ -11,39 +11,40 @@ import streamlit as st
 import authlib
 #
 # ──────────────────────────────────────────────────────────────────────────────
-# 0) Ensure OIDC dependencies are available (Authlib via streamlit[auth])
-#    st.login() relies on OIDC support. The "streamlit[auth]" extra pulls Authlib.
+# 0) Ensure OIDC deps (st.login relies on Authlib via streamlit[auth])
 # ──────────────────────────────────────────────────────────────────────────────
-def ensure_auth_dependencies():
+def ensure_auth_dependencies() -> bool:
     try:
-        importlib.import_module("authlib")  # Authlib is required behind st.login()
+        importlib.import_module("authlib")  # required behind st.login()
         return True
     except ImportError:
         try:
-            # Install the Streamlit auth extra (which brings in Authlib)
-            subprocess.check_call([sys.executable, "-m", "pip", "install", 'streamlit[auth]'])
+            subprocess.check_call(
+                [sys.executable, "-m", "pip", "install", 'streamlit[auth]']
+            )
             importlib.invalidate_caches()
             importlib.import_module("authlib")
             return True
         except Exception as e:
             st.error(
                 "Could not install OIDC dependencies (`streamlit[auth]`). "
-                f"Please add `streamlit[auth]` to requirements.txt. Details: {e}"
+                "Please add `streamlit[auth]` to requirements.txt. "
+                f"Details: {e}"
             )
             return False
 
-auth_ok = ensure_auth_dependencies()
-# --- Page setup ---
+auth_ready = ensure_auth_dependencies()  # ← define BEFORE any use
+
 # ──────────────────────────────────────────────────────────────────────────────
-# App setup
+# 1) App setup
 # ──────────────────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Google Login App - V-9-16-25", layout="centered")
 
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"
 
-# Prefer st.user (new API); fallback to experimental_user if not present
+# Prefer st.user; fallback to experimental_user for older runtimes
 try:
-    user_obj = st.user  # read-only, dict-like identity proxy when OIDC is configured
+    user_obj = st.user  # read-only, dict-like identity when OIDC configured
 except AttributeError:
     user_obj = getattr(st, "experimental_user", None)
 
@@ -56,22 +57,24 @@ def uget(*keys):
         if v:
             return v
         try:
-            v = user_obj[k]  # dict-like
+            v = user_obj[k]  # dict-like access
             if v:
                 return v
         except Exception:
             pass
     return None
 
-# Determine login state robustly:
-# - Prefer explicit .is_logged_in if present
-# - Otherwise infer from presence of common identity claims
-is_logged_in = bool(getattr(user_obj, "is_logged_in", False) or uget("email", "sub", "name", "user_id", "id"))
+# Determine login state:
+is_logged_in = bool(
+    getattr(user_obj, "is_logged_in", False)
+    or uget("email", "sub", "name", "user_id", "id")
+)
 
+# Check that login/logout APIs are available
 login_api_available = auth_ready and hasattr(st, "login") and hasattr(st, "logout")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# UI
+# 2) UI (keeps your styling)
 # ──────────────────────────────────────────────────────────────────────────────
 if not is_logged_in:
     # -------- NOT LOGGED IN --------
@@ -80,7 +83,7 @@ if not is_logged_in:
 
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         if login_api_available:
-            # Uses in-app OIDC with your current secrets:
+            # Uses your current Secrets:
             # [auth]
             # redirect_uri = "https://sharon-classification-app-with-app-sign-in-sl7zhe2hdfysksciabq.streamlit.app/oauth2callback"
             # client_id = "863781154987-38hbgcutu18f1ti7hvqc02p2cl4lpndl.apps.googleusercontent.com"
@@ -90,18 +93,21 @@ if not is_logged_in:
         else:
             st.sidebar.warning(
                 "Login API not available. Ensure `streamlit[auth]` is installed "
-                "and your OIDC secrets are configured."
+                "and OIDC secrets are configured."
             )
 
+    # Non-sensitive config peek (helps verify deployment settings)
     with st.sidebar.expander("OIDC setup (current)"):
-        # Show non-sensitive info to verify configuration
-        redirect_uri = st.secrets.get("auth", {}).get("redirect_uri") if hasattr(st, "secrets") else None
-        provider = st.secrets.get("auth", {}).get("server_metadata_url") if hasattr(st, "secrets") else None
+        auth_secrets = {}
+        try:
+            auth_secrets = dict(st.secrets.get("auth", {}))
+        except Exception:
+            pass
         st.write(
             {
-                "redirect_uri": redirect_uri or "(missing)",
-                "server_metadata_url": provider or "(missing)",
-                "client_id_present": bool(st.secrets.get("auth", {}).get("client_id")) if hasattr(st, "secrets") else False,
+                "redirect_uri": auth_secrets.get("redirect_uri", "(missing)"),
+                "server_metadata_url": auth_secrets.get("server_metadata_url", "(missing)"),
+                "client_id_present": bool(auth_secrets.get("client_id")),
             }
         )
         st.markdown(

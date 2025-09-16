@@ -196,10 +196,25 @@ login_api_available = auth_ready and hasattr(st, "login") and hasattr(st, "logou
 if not is_logged_in:
     # -------- NOT LOGGED IN --------
     st.title("Google Login App - V-9-16-25 V5")
+# Modified Alt Description Begin
+    HERO_DESC = "Fantasy landscape with a butterfly; decorative background for the Butterfly Classification app."
 
-    HERO_ALT = "Butterfly fantasy landscape background used for the classification app."
-    st.image(IMAGE_ADDRESS, caption=HERO_ALT, use_container_width=True)  # one render only
+    st.image(
+        IMAGE_ADDRESS,
+        caption="Butterfly classification app background image",
+        use_container_width=True
+            )
 
+# Short, always-visible description (touch & desktop friendly)
+    st.caption(f"Image description: {HERO_DESC}")
+
+# Optional longer description for screen-reader/keyboard users
+    with st.expander("Detailed image description"):
+    st.write(
+        "The image shows a stylized, pastel fantasy landscape with a large butterfly in the foreground. "
+        "It is used as decorative context; no critical information is contained in the image."
+            )
+# Modified Alt Description End
     # Login button
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         if login_api_available:

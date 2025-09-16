@@ -237,7 +237,7 @@ with st.sidebar.expander("OIDC setup (current)"):
             "- Add `streamlit[auth]` to **requirements.txt** to avoid runtime installs."
         )
 
-else:
+        else:
     # -------- LOGGED IN --------
 # Compute display name first
     display_name = uget("name", "full_name", "display_name", "email") or "Signed-in user"

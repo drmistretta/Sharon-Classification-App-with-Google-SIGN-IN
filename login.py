@@ -60,33 +60,17 @@ st.set_page_config(page_title="Google Login App - V-9-16-25.4", layout="centered
 st.markdown("""
 <style>
 :root{
-  --teal-main-1: #e9f8f8;   /* very light teal */
-  --teal-main-2: #d7f1f2;   /* light teal */
-  --teal-side-1: #dff6f6;   /* light teal (sidebar) */
-  --teal-side-2: #cfeeee;   /* slightly deeper light teal */
+  /* Darker teal shades */
+  --teal-main-1: #B2E4E6;   /* darker light teal */
+  --teal-main-2: #86D0D3;   /* deeper teal */
+  --teal-side-1: #A8E0E0;   /* sidebar start */
+  --teal-side-2: #7CCCCD;   /* sidebar end */
 }
 
 /* Main content background */
 [data-testid="stAppViewContainer"]{
   background: linear-gradient(180deg, var(--teal-main-1) 0%, var(--teal-main-2) 100%);
 }
-
-/* Sidebar (navigation column) background */
-[data-testid="stSidebar"] > div:first-child{
-  background: linear-gradient(180deg, var(--teal-side-1) 0%, var(--teal-side-2) 100%);
-}
-
-/* Optional: make header transparent so the gradient shows cleanly */
-header[data-testid="stHeader"]{
-  background: transparent;
-}
-
-/* Optional: card-like look for widgets on teal */
-section.main > div, .block-container{
-  backdrop-filter: none;
-}
-</style>
-""", unsafe_allow_html=True)
 ### teal change end
 
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"

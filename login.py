@@ -11,8 +11,24 @@ import streamlit as st
 import authlib
 #
 # ──────────────────────────────────────────────────────────────────────────────
-# 0) Ensure OIDC deps (st.login relies on Authlib via streamlit[auth])
+# 0) Ensure OpenID Connect (OIDC) dependencies (st.login relies on Authlib via streamlit[auth])
+# - With OIDC, a trusted provider such as Google issues an ID token
+# - The Streamlit app validates this token to confirm the user's identity 
+# - The streamlit app can now read profile details such as name and email
 # ──────────────────────────────────────────────────────────────────────────────
+# -----------------------------------------------------------------------------
+# ensure_auth_dependencies()
+# Purpose: Make sure the libraries needed for in-app OIDC login are available.
+# What it does:
+#   1) Tries to import "authlib" (used under the hood by Streamlit's st.login()).
+#   2) If missing, installs the "streamlit[auth]" extra (which brings in Authlib),
+#      refreshes import caches, and imports "authlib" again.
+#   3) On success returns True; on failure logs a helpful error in the app and
+#      returns False (so the caller can disable login UI gracefully).
+# Notes:
+#   - Runtime installs can slow cold starts; prefer adding `streamlit[auth]`
+#     to requirements.txt for production.
+# -----------------------------------------------------------------------------
 def ensure_auth_dependencies() -> bool:
     try:
         importlib.import_module("authlib")  # required behind st.login()
@@ -38,7 +54,7 @@ auth_ready = ensure_auth_dependencies()  # ← define BEFORE any use
 # ──────────────────────────────────────────────────────────────────────────────
 # 1) App setup
 # ──────────────────────────────────────────────────────────────────────────────
-st.set_page_config(page_title="Google Login App - V-9-16-25", layout="centered")
+st.set_page_config(page_title="Google Login App - V-9-16-25.4", layout="centered")
 
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"
 

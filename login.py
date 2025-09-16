@@ -1,7 +1,15 @@
+#
+# streamlit is an open-source Python library for building interactive data applications
+#
 import streamlit as st
+#
+# authlib is a Python library for implementing authentication and authorization protocols
+# 
 import authlib
-
-
+#
+# IMAGE_ADDRESS is a module-level (login.py), global variable that is shared across this file
+# IMAGE_ADDRESS is a variable linked to a string which is the URL of an image on the freepik website
+#
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"
 
 

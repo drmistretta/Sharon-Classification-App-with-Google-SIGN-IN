@@ -8,7 +8,7 @@ import streamlit as st
 import authlib
 #
 # --- Page setup ---
-st.set_page_config(page_title="Google Login App - V-9-16-25.2", layout="centered")
+st.set_page_config(page_title="Google Login App - V-9-16-25.3", layout="centered")
 #
 # IMAGE_ADDRESS is a module-level (login.py), global variable that is shared across this file
 # IMAGE_ADDRESS is a variable linked to a string, which is the URL of an image on the freepik website

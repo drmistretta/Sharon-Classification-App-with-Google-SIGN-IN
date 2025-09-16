@@ -1,3 +1,6 @@
+import sys
+import subprocess
+import importlib
 #
 # streamlit is an open-source Python library for building interactive data applications
 #
@@ -7,85 +10,117 @@ import streamlit as st
 # 
 import authlib
 #
-# --- Page setup ---
-st.set_page_config(page_title="Google Login App - V-9-16-25.3", layout="centered")
-#
-# IMAGE_ADDRESS is a module-level (login.py), global variable that is shared across this file
-# IMAGE_ADDRESS is a variable linked to a string, which is the URL of an image on the freepik website
-#
-IMAGE_ADDRESS = "https://images.unsplash.com/photo-1623615412998-c63b6d5fe9be?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bW9uYXJjaCUyMGJ1dHRlcmZseXxlbnwwfHwwfHx8MA%3D%3D"
-
-# The following if/else routine checks to see if the user is already logged into Google
-# The "true" condition is invoked when Streamlit detects that the user is NOT logged in:
-# --- Viewer identity on Streamlit Community Cloud ---
-# None => viewer not identified (or app visibility doesn't require sign-in)
-# --- Helper: safely get user fields (works for attr or dict-like) ---
-def current_user():
-    """Return the Streamlit user object, preferring st.user; fallback to st.experimental_user."""
+# ──────────────────────────────────────────────────────────────────────────────
+# 0) Ensure OIDC dependencies are available (Authlib via streamlit[auth])
+#    st.login() relies on OIDC support. The "streamlit[auth]" extra pulls Authlib.
+# ──────────────────────────────────────────────────────────────────────────────
+def ensure_auth_dependencies():
     try:
-        return st.user  # New API (no deprecation)
-    except Exception:
+        importlib.import_module("authlib")  # Authlib is required behind st.login()
+        return True
+    except ImportError:
         try:
-            return st.experimental_user  # Fallback on older hosts
-        except Exception:
-            return None
+            # Install the Streamlit auth extra (which brings in Authlib)
+            subprocess.check_call([sys.executable, "-m", "pip", "install", 'streamlit[auth]'])
+            importlib.invalidate_caches()
+            importlib.import_module("authlib")
+            return True
+        except Exception as e:
+            st.error(
+                "Could not install OIDC dependencies (`streamlit[auth]`). "
+                f"Please add `streamlit[auth]` to requirements.txt. Details: {e}"
+            )
+            return False
 
-def get_user_value(u, *keys):
-    """Safely fetch first available field from a user object (attr or mapping style)."""
-    if u is None:
+auth_ok = ensure_auth_dependencies()
+# --- Page setup ---
+# ──────────────────────────────────────────────────────────────────────────────
+# App setup
+# ──────────────────────────────────────────────────────────────────────────────
+st.set_page_config(page_title="Google Login App - V-9-16-25", layout="centered")
+
+IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"
+
+# Prefer st.user (new API); fallback to experimental_user if not present
+try:
+    user_obj = st.user  # read-only, dict-like identity proxy when OIDC is configured
+except AttributeError:
+    user_obj = getattr(st, "experimental_user", None)
+
+def uget(*keys):
+    """Return first truthy field from user_obj (attribute- or mapping-style)."""
+    if not user_obj:
         return None
     for k in keys:
+        v = getattr(user_obj, k, None)
+        if v:
+            return v
         try:
-            v = getattr(u, k)
-            if v:
-                return v
-        except Exception:
-            pass
-        try:
-            v = u[k]  # dict-like
+            v = user_obj[k]  # dict-like
             if v:
                 return v
         except Exception:
             pass
     return None
 
-user = current_user()
+# Determine login state robustly:
+# - Prefer explicit .is_logged_in if present
+# - Otherwise infer from presence of common identity claims
+is_logged_in = bool(getattr(user_obj, "is_logged_in", False) or uget("email", "sub", "name", "user_id", "id"))
 
-if user is None:
-    # ---- NOT LOGGED IN (no viewer identity present) ----
+login_api_available = auth_ready and hasattr(st, "login") and hasattr(st, "logout")
+
+# ──────────────────────────────────────────────────────────────────────────────
+# UI
+# ──────────────────────────────────────────────────────────────────────────────
+if not is_logged_in:
+    # -------- NOT LOGGED IN --------
     st.title("Google Login App - V-9-16-25")
     st.image(IMAGE_ADDRESS)
 
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
-        st.sidebar.info(
-            "On Streamlit Community Cloud, sign-in is controlled via *App visibility* "
-            "('Email required' or 'Restricted'). There is no programmatic st.login()."
-        )
+        if login_api_available:
+            # Uses in-app OIDC with your current secrets:
+            # [auth]
+            # redirect_uri = "https://sharon-classification-app-with-app-sign-in-sl7zhe2hdfysksciabq.streamlit.app/oauth2callback"
+            # client_id = "863781154987-38hbgcutu18f1ti7hvqc02p2cl4lpndl.apps.googleusercontent.com"
+            # client_secret = "456"
+            # server_metadata_url = "https://accounts.google.com/.well-known/openid-configuration"
+            st.login()
+        else:
+            st.sidebar.warning(
+                "Login API not available. Ensure `streamlit[auth]` is installed "
+                "and your OIDC secrets are configured."
+            )
 
-    with st.sidebar.expander("Why can’t I log in here?"):
+    with st.sidebar.expander("OIDC setup (current)"):
+        # Show non-sensitive info to verify configuration
+        redirect_uri = st.secrets.get("auth", {}).get("redirect_uri") if hasattr(st, "secrets") else None
+        provider = st.secrets.get("auth", {}).get("server_metadata_url") if hasattr(st, "secrets") else None
         st.write(
-            "- Set App visibility to 'Email required' or 'Restricted'.\n"
-            "- Refresh and sign in from the app’s top-right user menu."
+            {
+                "redirect_uri": redirect_uri or "(missing)",
+                "server_metadata_url": provider or "(missing)",
+                "client_id_present": bool(st.secrets.get("auth", {}).get("client_id")) if hasattr(st, "secrets") else False,
+            }
+        )
+        st.markdown(
+            "- Redirect URI must exactly match your Google OAuth **Authorized redirect URI**.\n"
+            "- Add `streamlit[auth]` to **requirements.txt** to avoid runtime installs."
         )
 
 else:
-    # ---- LOGGED IN (viewer identity available) ----
+    # -------- LOGGED IN --------
     st.subheader("Please visit the App")
 
-    display_name = (
-        get_user_value(user, "name", "full_name", "display_name")
-        or get_user_value(user, "email", "primaryEmail")
-        or get_user_value(user, "username", "user", "user_id", "id")
-        or "Signed-in user"
-    )
-
+    display_name = uget("name", "full_name", "display_name", "email") or "Signed-in user"
     st.markdown(
         f"Hello, <span style='color: orange; font-weight: bold;'>{display_name}</span>!",
         unsafe_allow_html=True,
     )
 
     if st.sidebar.button("Log out", type="secondary", icon=":material/logout:"):
-        st.sidebar.warning(
-            "On Streamlit Community Cloud, sign-out is handled by the platform. "
-            "Use the user/profile menu in the app header."
-        )
+        if login_api_available:
+            st.logout()
+        else:
+            st.sidebar.info("Logout API not available in this runtime.")

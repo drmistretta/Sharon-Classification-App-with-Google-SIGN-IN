@@ -71,6 +71,23 @@ st.markdown("""
 [data-testid="stAppViewContainer"]{
   background: linear-gradient(180deg, var(--teal-main-1) 0%, var(--teal-main-2) 100%);
 }
+
+/* Sidebar (navigation column) background */
+[data-testid="stSidebar"] > div:first-child{
+  background: linear-gradient(180deg, var(--teal-side-1) 0%, var(--teal-side-2) 100%);
+}
+
+/* Optional: keep header transparent so gradient shows */
+header[data-testid="stHeader"]{
+  background: transparent;
+}
+
+/* Optional: neutral block container (no extra blur) */
+section.main > div, .block-container{
+  backdrop-filter: none;
+}
+</style>
+""", unsafe_allow_html=True)
 ### teal change end
 
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"

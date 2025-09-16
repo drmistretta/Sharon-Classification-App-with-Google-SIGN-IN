@@ -23,40 +23,60 @@ user = st.experimental_user  # None if not signed in (or if app visibility doesn
 # The "true" condition is invoked when Streamlit detects that the user is NOT logged in:
 # --- Viewer identity on Streamlit Community Cloud ---
 # None => viewer not identified (or app visibility doesn't require sign-in)
-user = st.user
+# --- Helper: safely get user fields (works for attr or dict-like) ---
+def user_field(u, key, default=None):
+    try:
+        v = getattr(u, key)          # attribute-style (u.name / u.email)
+        if v is not None:
+            return v
+    except Exception:
+        pass
+    try:
+        v = u.get(key)               # dict-style (u["name"] / u["email"])
+        if v is not None:
+            return v
+    except Exception:
+        pass
+    return default
+
+# --- Viewer identity on Streamlit Community Cloud ---
+# None => viewer not identified (or app visibility doesn't require sign-in)
+user = st.experimental_user
 
 if user is None:
     # ========== NOT LOGGED IN (no viewer identity) ==========
     st.title("Google Login App - V-9-16-25")
     st.image(IMAGE_ADDRESS)
 
-    # Keep your styled sidebar button; explain how sign-in works on Cloud
+    # Keep your styled sidebar button; give Cloud guidance
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         st.sidebar.info(
             "On Streamlit Community Cloud, sign-in is controlled by the app's "
-            "visibility settings (e.g., ‘Email required’). There’s no programmatic "
-            "`st.login()`—use the app’s hosted URL with sign-in required, or open "
-            "the user menu to sign in."
+            "visibility settings (e.g., ‘Email required’ / ‘Restricted’). "
+            "There is no programmatic st.login()."
         )
 
     with st.sidebar.expander("Why can’t I log in here?"):
         st.write(
             "- Streamlit Cloud manages authentication.\n"
-            "- `st.user` / `st.login()` are not Streamlit APIs.\n"
-            "- Use app visibility (Email required/Restricted) to prompt Google sign-in."
+            "- `st.user` / `st.login()` / `st.logout()` are not Streamlit APIs.\n"
+            "- Use App visibility to require Google sign-in."
         )
 
 else:
     # ========== LOGGED IN (viewer identity available) ==========
     st.subheader("Please visit the App")
 
-    # Show a styled greeting (Streamlit doesn't have st.html; use markdown with HTML)
+    # Safely resolve a friendly display name
+    display_name = user_field(user, "name") or user_field(user, "email") or "Signed-in user"
+
+    # Styled greeting (Streamlit supports HTML in markdown when unsafe_allow_html=True)
     st.markdown(
-        f"Hello, <span style='color: orange; font-weight: bold;'>{user.name or user.email}</span>!",
+        f"Hello, <span style='color: orange; font-weight: bold;'>{display_name}</span>!",
         unsafe_allow_html=True,
     )
 
-    # Keep your styled sidebar button; explain how to sign out on Cloud
+    # Keep your styled sidebar button; provide Cloud sign-out guidance
     if st.sidebar.button("Log out", type="secondary", icon=":material/logout:"):
         st.sidebar.warning(
             "On Streamlit Community Cloud, sign-out is handled by the platform. "
@@ -66,7 +86,7 @@ else:
     with st.sidebar.expander("Account details"):
         st.write(
             {
-                "name": user.name,
-                "email": user.email,
+                "name": user_field(user, "name"),
+                "email": user_field(user, "email"),
             }
         )

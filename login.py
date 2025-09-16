@@ -133,7 +133,10 @@ if not is_logged_in:
 
 else:
     # -------- LOGGED IN --------
-    st.subheader("Please visit the App")
+    st.markdown("""
+    ## Welcome to the Butterfly Classification Application!
+    ### Click the app tab in the left-hand navigation column.
+    """)
 
     display_name = uget("name", "full_name", "display_name", "email") or "Signed-in user"
     st.markdown(

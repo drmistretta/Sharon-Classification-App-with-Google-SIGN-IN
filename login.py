@@ -198,9 +198,7 @@ if not is_logged_in:
     st.title("Google Login App - V-9-16-25 V5")
 
     HERO_ALT = "Butterfly fantasy landscape background used for the classification app."
-    # Image + accessible alt description
-    st.image(IMAGE_ADDRESS, caption="App background image", use_container_width=True)
-    st.markdown(f'![{HERO_ALT}]({IMAGE_ADDRESS})')
+    st.image(IMAGE_ADDRESS, caption=HERO_ALT, use_container_width=True)  # one render only
 
     # Login button
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):

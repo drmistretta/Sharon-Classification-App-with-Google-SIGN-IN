@@ -210,9 +210,9 @@ if not is_logged_in:
 
 # Optional longer description for screen-reader/keyboard users
     with st.expander("Detailed image description"):
-    st.write(
+        st.write(
         "The image shows a stylized, pastel fantasy landscape with a large butterfly in the foreground. "
-        "It is used as decorative context; no critical information is contained in the image."
+        "It is used as a decorative context; no critical information is contained in the image."
             )
 # Modified Alt Description End
     # Login button

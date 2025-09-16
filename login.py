@@ -196,7 +196,12 @@ login_api_available = auth_ready and hasattr(st, "login") and hasattr(st, "logou
 if not is_logged_in:
     # -------- NOT LOGGED IN --------
     st.title("Google Login App - V-9-16-25 V5")
-    st.image(IMAGE_ADDRESS)
+    HERO_ALT = "Butterfly fantasy landscape background used for the classification app."
+
+# Add alt text to image:
+st.image(IMAGE_ADDRESS, caption="App background image", use_column_width=True)
+# Better: include alt text for the Markdown fallback (screen readers pick it up)
+st.markdown(f'![{HERO_ALT}]({IMAGE_ADDRESS})')
 
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         if login_api_available:

@@ -15,7 +15,7 @@ IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butte
 # The following if/else routine checks to see if the user is already logged into Google
 # The "true" condition is invoked when Streamlit detects that the user is NOT logged in:
 if not st.user.is_logged_in:
-    st.title("Google Login App")
+    st.title("Google Login App - V-9-16-25")
     st.image(IMAGE_ADDRESS)
     if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         st.login()

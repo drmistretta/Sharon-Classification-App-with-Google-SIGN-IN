@@ -55,7 +55,7 @@ auth_ready = ensure_auth_dependencies()  # ← define BEFORE any use
 # 1) App setup
 # ──────────────────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Google Login App - V-9-16-25.4", layout="centered")
-### teal change begin
+#
 # ---- Accessible theming: darker text on teal, focus outlines, reduced motion ----
 st.markdown("""
 <style>
@@ -130,7 +130,32 @@ body.hc h1, body.hc h2, body.hc h3, body.hc a { color: var(--hc-text) !important
 </style>
 """, unsafe_allow_html=True)
 
-### teal change end
+### CSS end
+### High Contrast Begin
+# ---- Accessibility controls (sidebar) ----
+with st.sidebar:
+    st.markdown("### Accessibility")
+    hc = st.toggle("High contrast mode")
+    base_size = st.slider("Base text size", 14, 22, 16, help="Increase for readability")
+
+# Apply user choices (toggle high-contrast class + adjust root font size)
+st.markdown(f"""
+<style>
+html {{ font-size: {base_size}px; }}
+</style>
+""", unsafe_allow_html=True)
+
+# Toggle high-contrast class on the body element
+st.markdown(f"""
+<script>
+const b = window.parent.document.querySelector('body');
+if (b) {{
+  {'b.classList.add("hc");' if hc else 'b.classList.remove("hc");'}
+}}
+</script>
+""", unsafe_allow_html=True)
+
+### High Contrast End
 
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"
 

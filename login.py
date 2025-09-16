@@ -219,7 +219,7 @@ if st.sidebar.button("Log in with Google", type="primary", icon=":material/login
             )
 
     # Non-sensitive config peek (helps verify deployment settings)
-    with st.sidebar.expander("OIDC setup (current)"):
+with st.sidebar.expander("OIDC setup (current)"):
         auth_secrets = {}
         try:
             auth_secrets = dict(st.secrets.get("auth", {}))

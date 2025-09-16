@@ -191,19 +191,19 @@ is_logged_in = bool(
 login_api_available = auth_ready and hasattr(st, "login") and hasattr(st, "logout")
 
 # ──────────────────────────────────────────────────────────────────────────────
-# 2) UI (keeps your styling)
+# 2) UI (keeps your styling)  — FIXED INDENTATION
 # ──────────────────────────────────────────────────────────────────────────────
 if not is_logged_in:
     # -------- NOT LOGGED IN --------
     st.title("Google Login App - V-9-16-25 V5")
+
     HERO_ALT = "Butterfly fantasy landscape background used for the classification app."
+    # Image + accessible alt description
+    st.image(IMAGE_ADDRESS, caption="App background image", use_column_width=True)
+    st.markdown(f'![{HERO_ALT}]({IMAGE_ADDRESS})')
 
-# Add alt text to image:
-st.image(IMAGE_ADDRESS, caption="App background image", use_column_width=True)
-# Better: include alt text for the Markdown fallback (screen readers pick it up)
-st.markdown(f'![{HERO_ALT}]({IMAGE_ADDRESS})')
-
-if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
+    # Login button
+    if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         if login_api_available:
             # Uses your current Secrets:
             # [auth]
@@ -215,41 +215,4 @@ if st.sidebar.button("Log in with Google", type="primary", icon=":material/login
         else:
             st.sidebar.warning(
                 "Login API not available. Ensure `streamlit[auth]` is installed "
-                "and OIDC secrets are configured."
-            )
 
-    # Non-sensitive config peek (helps verify deployment settings)
-with st.sidebar.expander("OIDC setup (current)"):
-        auth_secrets = {}
-        try:
-            auth_secrets = dict(st.secrets.get("auth", {}))
-        except Exception:
-            pass
-        st.write(
-            {
-                "redirect_uri": auth_secrets.get("redirect_uri", "(missing)"),
-                "server_metadata_url": auth_secrets.get("server_metadata_url", "(missing)"),
-                "client_id_present": bool(auth_secrets.get("client_id")),
-            }
-        )
-        st.markdown(
-            "- Redirect URI must exactly match your Google OAuth **Authorized redirect URI**.\n"
-            "- Add `streamlit[auth]` to **requirements.txt** to avoid runtime installs."
-        )
-
-else:
-    # -------- LOGGED IN --------
-# Compute display name first
-    display_name = uget("name", "full_name", "display_name", "email") or "Signed-in user"
-
-# Two-line greeting (line 1 = Welcome, {display_name}!; line 2 = click instructions)
-    st.markdown(f"""
-                # Welcome, {display_name}!
-                ## Click the app tab in the left-hand navigation column to classify butterflies.
-                """)
-
-    if st.sidebar.button("Log out", type="secondary", icon=":material/logout:"):
-        if login_api_available:
-            st.logout()
-        else:
-            st.sidebar.info("Logout API not available in this runtime.")

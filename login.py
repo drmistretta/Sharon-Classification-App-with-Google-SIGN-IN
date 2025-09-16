@@ -203,7 +203,7 @@ st.image(IMAGE_ADDRESS, caption="App background image", use_column_width=True)
 # Better: include alt text for the Markdown fallback (screen readers pick it up)
 st.markdown(f'![{HERO_ALT}]({IMAGE_ADDRESS})')
 
-    if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
+if st.sidebar.button("Log in with Google", type="primary", icon=":material/login:"):
         if login_api_available:
             # Uses your current Secrets:
             # [auth]

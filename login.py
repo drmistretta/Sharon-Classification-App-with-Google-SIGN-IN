@@ -199,7 +199,7 @@ if not is_logged_in:
 
     HERO_ALT = "Butterfly fantasy landscape background used for the classification app."
     # Image + accessible alt description
-    st.image(IMAGE_ADDRESS, caption="App background image", use_column_width=True)
+    st.image(IMAGE_ADDRESS, caption="App background image", use_container_width=True)
     st.markdown(f'![{HERO_ALT}]({IMAGE_ADDRESS})')
 
     # Login button

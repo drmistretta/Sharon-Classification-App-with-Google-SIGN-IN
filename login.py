@@ -56,38 +56,80 @@ auth_ready = ensure_auth_dependencies()  # ← define BEFORE any use
 # ──────────────────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="Google Login App - V-9-16-25.4", layout="centered")
 ### teal change begin
-# ---- Light teal theming for main area & sidebar ----
+# ---- Accessible theming: darker text on teal, focus outlines, reduced motion ----
 st.markdown("""
 <style>
 :root{
-  /* Darker teal shades */
-  --teal-main-1: #B2E4E6;   /* darker light teal */
-  --teal-main-2: #86D0D3;   /* deeper teal */
-  --teal-side-1: #A8E0E0;   /* sidebar start */
-  --teal-side-2: #7CCCCD;   /* sidebar end */
+  /* Teal backgrounds (darker than before for contrast) */
+  --teal-main-1: #9ED9DC;
+  --teal-main-2: #6EC7CB;
+  --teal-side-1: #95D3D4;
+  --teal-side-2: #5FBCC0;
+
+  /* Text & link colors with strong contrast on teal */
+  --text-on-teal: #102225;         /* deep near-black */
+  --link-on-teal: #0b4f5a;         /* dark teal for links */
+  --link-on-teal-hover: #083b44;   /* even darker on hover */
+
+  /* High-contrast override (we'll toggle via a body class) */
+  --hc-bg-main-1: #E8F4F6;
+  --hc-bg-main-2: #BFE5EA;
+  --hc-text: #0A0A0A;
 }
 
 /* Main content background */
 [data-testid="stAppViewContainer"]{
   background: linear-gradient(180deg, var(--teal-main-1) 0%, var(--teal-main-2) 100%);
+  color: var(--text-on-teal);
 }
 
-/* Sidebar (navigation column) background */
+/* Sidebar background */
 [data-testid="stSidebar"] > div:first-child{
   background: linear-gradient(180deg, var(--teal-side-1) 0%, var(--teal-side-2) 100%);
+  color: var(--text-on-teal);
 }
 
-/* Optional: keep header transparent so gradient shows */
-header[data-testid="stHeader"]{
-  background: transparent;
+/* Make links readable on teal backgrounds */
+a, .stMarkdown a {
+  color: var(--link-on-teal);
+  text-decoration-thickness: 2px;
+}
+a:hover, .stMarkdown a:hover { color: var(--link-on-teal-hover); }
+
+/* Headings inherit readable color */
+h1, h2, h3, h4, h5, h6 { color: var(--text-on-teal); }
+
+/* Improve focus visibility for keyboard users */
+*:focus {
+  outline: 3px solid #ffbf47 !important;  /* WCAG-visible amber outline */
+  outline-offset: 2px !important;
 }
 
-/* Optional: neutral block container (no extra blur) */
-section.main > div, .block-container{
-  backdrop-filter: none;
+/* Respect prefers-reduced-motion for users who disable animations */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }
+
+/* Slightly widen sidebar for readability on dense content */
+[data-testid="stSidebar"] { min-width: 290px; }
+
+/* High-contrast mode (body.hc toggled below) */
+body.hc [data-testid="stAppViewContainer"]{
+  background: linear-gradient(180deg, var(--hc-bg-main-1) 0%, var(--hc-bg-main-2) 100%) !important;
+  color: var(--hc-text) !important;
+}
+body.hc [data-testid="stSidebar"] > div:first-child{
+  background: linear-gradient(180deg, #E3F2F4 0%, #C9E9ED 100%) !important;
+  color: var(--hc-text) !important;
+}
+body.hc h1, body.hc h2, body.hc h3, body.hc a { color: var(--hc-text) !important; }
 </style>
 """, unsafe_allow_html=True)
+
 ### teal change end
 
 IMAGE_ADDRESS = "https://img.freepik.com/free-photo/fantasy-landscape-with-butterfly_23-2151451739.jpg"

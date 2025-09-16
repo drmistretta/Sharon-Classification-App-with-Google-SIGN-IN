@@ -133,16 +133,14 @@ if not is_logged_in:
 
 else:
     # -------- LOGGED IN --------
-    st.markdown("""
-    ## Welcome to the Butterfly Classification Application!
-    ### Click the app tab in the left-hand navigation column.
-    """)
-
+# Compute display name first
     display_name = uget("name", "full_name", "display_name", "email") or "Signed-in user"
-    st.markdown(
-        f"Hello, <span style='color: orange; font-weight: bold;'>{display_name}</span>!",
-        unsafe_allow_html=True,
-    )
+
+# Two-line greeting (line 1 = Welcome, {display_name}!; line 2 = click instructions)
+    st.markdown(f"""
+                # Welcome, {display_name}!
+                ## Click the app tab in the left-hand navigation column to classify butterflies.
+                """)
 
     if st.sidebar.button("Log out", type="secondary", icon=":material/logout:"):
         if login_api_available:

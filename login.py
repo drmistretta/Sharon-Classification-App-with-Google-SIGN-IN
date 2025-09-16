@@ -23,7 +23,7 @@ user = st.experimental_user  # None if not signed in (or if app visibility doesn
 # The "true" condition is invoked when Streamlit detects that the user is NOT logged in:
 # --- Viewer identity on Streamlit Community Cloud ---
 # None => viewer not identified (or app visibility doesn't require sign-in)
-user = st.experimental_user
+user = st.user
 
 if user is None:
     # ========== NOT LOGGED IN (no viewer identity) ==========
